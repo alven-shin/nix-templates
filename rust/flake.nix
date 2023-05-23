@@ -1,36 +1,59 @@
-# https://github.com/nix-community/naersk
 {
   inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils.url = "github:numtide/flake-utils";
-    naersk.url = "github:nix-community/naersk";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
   outputs = {
     self,
-    flake-utils,
-    naersk,
     nixpkgs,
+    rust-overlay,
+    flake-utils,
+    ...
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
-        pkgs = (import nixpkgs) {
-          inherit system;
+        overlays = [(import rust-overlay)];
+        pkgs = import nixpkgs {
+          inherit system overlays;
         };
 
-        naersk' =
-          pkgs.callPackage naersk {
+        # https://github.com/oxalica/rust-overlay#cheat-sheet-common-usage-of-rust-bin
+        rust =
+          if builtins.pathExists ./rust-toolchain
+          then pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain
+          else if builtins.pathExists ./rust-toolchain.toml
+          then pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml
+          else pkgs.rust-bin.stable.latest.default;
+
+        compileTimeDependencies = with pkgs; [rust sccache lld];
+        runtimeDependencies = with pkgs; [];
+      in {
+        defaultPackage = let
+          name = let
+            config =
+              builtins.fromTOML (builtins.readFile ./Cargo.toml);
+          in
+            config.package.name;
+        in
+          pkgs.stdenv.mkDerivation {
+            inherit name;
+            src = ./.;
+            nativeBuildInputs = compileTimeDependencies;
+            buildInputs = runtimeDependencies;
+            buildPhase = "cargo build --release";
+            installPhase = ''
+              mkdir -p $out/bin
+              cp target/release/${name} $out/bin
+            '';
           };
-      in rec {
-        # For `nix build` & `nix run`:
-        defaultPackage = naersk'.buildPackage {
-          src = ./.;
-          nativeBuildInputs = with pkgs; [sccache lld];
-        };
 
-        # For `nix develop` (optional, can be skipped):
-        devShell = pkgs.mkShell {
-          packages = with pkgs; [rustc rustfmt cargo clippy sccache lld rust-analyzer taplo];
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs;
+            compileTimeDependencies
+            ++ runtimeDependencies
+            ++ [rust-analyzer taplo];
         };
       }
     );
