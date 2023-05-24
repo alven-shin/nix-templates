@@ -20,22 +20,15 @@
         };
 
         # https://github.com/oxalica/rust-overlay#cheat-sheet-common-usage-of-rust-bin
-        rust =
-          if builtins.pathExists ./rust-toolchain
-          then pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain
-          else if builtins.pathExists ./rust-toolchain.toml
-          then pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml
-          else pkgs.rust-bin.stable.latest.default;
+        rust = pkgs.rust-bin.stable.latest.default;
+        # NOTE: use this instead if using rust-toolchain file
+        # rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
         compileTimeDependencies = with pkgs; [rust sccache lld];
         runtimeDependencies = with pkgs; [];
       in {
         defaultPackage = let
-          name = let
-            config =
-              builtins.fromTOML (builtins.readFile ./Cargo.toml);
-          in
-            config.package.name;
+          name = "foobar"; # NOTE: replace with crate name
         in
           pkgs.stdenv.mkDerivation {
             inherit name;
