@@ -5,7 +5,12 @@
     templates = {
       rust = {
         path = ./rust;
-        description = "Modified rust template, using Naersk, sccache, and lld.";
+        description = "Modified Rust template, using sccache and lld.";
+      };
+
+      java-basic = {
+        path = ./java-basic;
+        description = "A basic Java template.";
       };
     };
   };
