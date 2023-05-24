@@ -22,17 +22,18 @@
         runtimeDependencies = with pkgs; [];
       in {
         defaultPackage = let
-          name = "foobar"; # NOTE: replace with program name
+          name = "Main"; # NOTE: replace with program name
+          entrypoint = name; # NOTE: replace if name != classfile with main method
         in
           pkgs.stdenv.mkDerivation {
             inherit name;
             src = ./src;
             nativeBuildInputs = compileTimeDependencies;
             buildInputs = runtimeDependencies;
-            buildPhase = "${jdk}/bin/javac -d $out/share/${name} Main.java";
+            buildPhase = "${jdk}/bin/javac -d $out/share/${name} ${entrypoint}.java";
             installPhase = ''
               mkdir -p $out/bin
-              echo -e "#!/bin/bash\n${jdk}/bin/java -cp $out/share/${name} Main" > $out/bin/${name}
+              echo -e "#!/bin/bash\n${jdk}/bin/java -cp $out/share/${name} ${entrypoint}" > $out/bin/${name}
               chmod +x $out/bin/${name}
             '';
           };
