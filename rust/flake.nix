@@ -2,6 +2,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
+    naersk.url = "github:nix-community/naersk";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -9,6 +10,7 @@
     self,
     nixpkgs,
     rust-overlay,
+    naersk,
     flake-utils,
     ...
   }:
@@ -20,33 +22,35 @@
         };
 
         # https://github.com/oxalica/rust-overlay#cheat-sheet-common-usage-of-rust-bin
-        rust = pkgs.rust-bin.stable.latest.default;
+        toolchain = pkgs.rust-bin.stable.latest.default;
         # NOTE: use this instead if using rust-toolchain file
-        # rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
+        # toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
-        compileTimeDependencies = with pkgs; [rust sccache lld];
-        runtimeDependencies = with pkgs; [];
+        naersk' = pkgs.callPackage naersk {
+          cargo = toolchain;
+          rustc = toolchain;
+        };
+
+        linuxDependencies = with pkgs; [toolchain sccache];
+        macosDependencies = with pkgs; [toolchain sccache];
+        macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
+
+        dependencies =
+          pkgs.lib.optionals pkgs.stdenv.isLinux linuxDependencies
+          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosDependencies
+          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosFrameworks;
       in {
-        defaultPackage = let
-          name = "foobar"; # NOTE: replace with crate name
-        in
-          pkgs.stdenv.mkDerivation {
-            inherit name;
-            src = ./.;
-            nativeBuildInputs = compileTimeDependencies;
-            buildInputs = runtimeDependencies;
-            buildPhase = "cargo build --release";
-            installPhase = ''
-              mkdir -p $out/bin
-              cp target/release/${name} $out/bin
-            '';
-          };
+        packages.default = naersk'.buildPackage {
+          src = ./.;
+          buildInputs = dependencies;
+        };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs;
-            compileTimeDependencies
-            ++ runtimeDependencies
-            ++ [rust-analyzer taplo];
+          packages = with pkgs;
+            dependencies ++ [rust-analyzer taplo];
+          env = {
+            LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
+          };
         };
       }
     );
