@@ -5,7 +5,7 @@
     templates = {
       rust = {
         path = ./rust;
-        description = "Modified Rust template, using sccache and lld.";
+        description = "Modified Rust template with custom Cargo configs";
       };
 
       java-basic = {

@@ -31,7 +31,7 @@
           rustc = toolchain;
         };
 
-        linuxDependencies = with pkgs; [toolchain sccache];
+        linuxDependencies = with pkgs; [toolchain sccache mold];
         macosDependencies = with pkgs; [toolchain sccache];
         macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
 
