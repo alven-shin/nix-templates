@@ -12,6 +12,13 @@
         path = ./java-basic;
         description = "A basic Java template.";
       };
+
+      shells = {
+        python = {
+          path = ./shells/python;
+          description = "Python development shell template, using pdm";
+        };
+      };
     };
   };
 }
