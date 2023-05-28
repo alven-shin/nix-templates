@@ -1,0 +1,17 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = []
+license = {}
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "python-lsp-server[rope]>=1.7.3",
+    "pylsp-mypy>=0.6.6",
+    "python-lsp-black>=1.3.0",
+    "python-lsp-ruff>=1.4.0",
+    "pytest>=7.3.1",
+]
