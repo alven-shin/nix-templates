@@ -16,13 +16,8 @@
           inherit system;
         };
 
-        sharedDependencies = with pkgs; [
-          python3Minimal
-          pdm
-        ];
-        linuxDependencies = with pkgs; [
-          stdenv.cc.cc.lib
-        ];
+        sharedDependencies = with pkgs; [python3 pdm];
+        linuxDependencies = with pkgs; [];
         macosDependencies = with pkgs; [];
         macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
 
@@ -34,7 +29,7 @@
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs;
-            dependencies ++ [taplo];
+            dependencies ++ [];
           env = {
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
           };

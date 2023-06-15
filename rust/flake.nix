@@ -31,12 +31,14 @@
           rustc = toolchain;
         };
 
-        linuxDependencies = with pkgs; [toolchain sccache mold clang];
-        macosDependencies = with pkgs; [toolchain sccache];
+        sharedDependencies = with pkgs; [toolchain sccache];
+        linuxDependencies = with pkgs; [mold clang];
+        macosDependencies = with pkgs; [];
         macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
 
         dependencies =
-          pkgs.lib.optionals pkgs.stdenv.isLinux linuxDependencies
+          sharedDependencies
+          ++ pkgs.lib.optionals pkgs.stdenv.isLinux linuxDependencies
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosDependencies
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosFrameworks;
       in {
@@ -46,8 +48,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs;
-            dependencies ++ [rust-analyzer taplo];
+          packages = with pkgs; dependencies ++ [];
           env = {
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
           };

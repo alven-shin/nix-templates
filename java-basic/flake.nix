@@ -17,9 +17,16 @@
         };
 
         jdk = pkgs.jdk17;
-        compileTimeDependencies = with pkgs; [];
+        sharedDependencies = with pkgs; [jdk makeWrapper];
+        linuxDependencies = with pkgs; [];
+        macosDependencies = with pkgs; [];
+        macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
 
-        runtimeDependencies = with pkgs; [];
+        dependencies =
+          sharedDependencies
+          ++ pkgs.lib.optionals pkgs.stdenv.isLinux linuxDependencies
+          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosDependencies
+          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosFrameworks;
       in {
         defaultPackage = let
           name = "Main"; # NOTE: replace with program name
@@ -28,21 +35,20 @@
           pkgs.stdenv.mkDerivation {
             inherit name;
             src = ./src;
-            nativeBuildInputs = compileTimeDependencies;
-            buildInputs = runtimeDependencies;
+            buildInputs = dependencies;
             buildPhase = "${jdk}/bin/javac -d $out/share/${name} ${entrypoint}.java";
             installPhase = ''
-              mkdir -p $out/bin
-              echo -e "#!/bin/bash\n${jdk}/bin/java -cp $out/share/${name} ${entrypoint}" > $out/bin/${name}
-              chmod +x $out/bin/${name}
+              makeWrapper ${jdk}/bin/java $out/bin/${name} \
+                --add-flags "-cp $out/share/${name}" \
+                --add-flags "${entrypoint}"
             '';
           };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs;
-            compileTimeDependencies
-            ++ runtimeDependencies
-            ++ [jdt-language-server];
+          packages = with pkgs; dependencies ++ [];
+          env = {
+            LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
+          };
         };
       }
     );
