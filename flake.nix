@@ -5,7 +5,7 @@
     templates = {
       rust = {
         path = ./rust;
-        description = "Modified Rust template with custom Cargo configs";
+        description = "Modified Rust template with custom Cargo configs.";
       };
 
       java-basic = {
@@ -16,7 +16,12 @@
       shells = {
         python = {
           path = ./shells/python;
-          description = "Python development shell template, using pdm";
+          description = "Python development shell template, using pdm.";
+        };
+
+        generic = {
+          path = ./shells/generic;
+          description = "Generic development shell template.";
         };
       };
     };
