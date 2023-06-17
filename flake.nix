@@ -8,15 +8,15 @@
         description = "Modified Rust template with custom Cargo configs.";
       };
 
-      java-basic = {
-        path = ./java-basic;
-        description = "A basic Java template.";
-      };
-
       shells = {
         python = {
           path = ./shells/python;
           description = "Python development shell template, using pdm.";
+        };
+
+        java = {
+          path = ./shells/java;
+          description = "Java development shell template, using gradle.";
         };
 
         generic = {
