@@ -19,6 +19,11 @@
           description = "Java development shell template, using gradle.";
         };
 
+        csharp = {
+          path = ./shells/csharp;
+          description = "Dotnet and C# development shell template.";
+        };
+
         generic = {
           path = ./shells/generic;
           description = "Generic development shell template.";
