@@ -22,7 +22,9 @@
         };
 
         # https://github.com/oxalica/rust-overlay#cheat-sheet-common-usage-of-rust-bin
-        toolchain = pkgs.rust-bin.stable.latest.default;
+        toolchain = pkgs.rust-bin.stable.latest.default.override {
+          extensions = ["rust-src"];
+        };
         # NOTE: use this instead if using rust-toolchain file
         # toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
