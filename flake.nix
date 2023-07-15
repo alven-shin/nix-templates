@@ -7,6 +7,10 @@
         path = ./rust;
         description = "Modified Rust template with custom Cargo configs.";
       };
+      leptos-csr = {
+        path = ./leptos-csr;
+        description = "A Modified Modified Rust template for client-side rendering leptos";
+      };
 
       shells = {
         python = {

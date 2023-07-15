@@ -1,0 +1,21 @@
+# list available recipes
+default:
+	@just --list
+
+# build app, optimized for size
+build:
+	trunk build --release
+	@# optimized with wasm-opt
+	find dist/ -name "*.wasm" -exec wasm-opt {} -Oz -o {}.opt \;
+	@# remove unoptimized files
+	find dist/ -name "*.wasm" -exec rm {} \;
+	@# rename optimized files to correct file extension
+	find dist/ -name "*.wasm.opt" -exec sh -c 'mv "$1" "${1%.wasm.opt}.wasm"' _ {} \;
+
+# build app for debugging
+build-debug:
+	trunk build
+
+# spawn live-server and open browser
+serve:
+	trunk serve --open
