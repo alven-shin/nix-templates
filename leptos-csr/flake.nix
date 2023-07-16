@@ -51,7 +51,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; dependencies ++ [trunk cargo-leptos binaryen];
+          packages = with pkgs; dependencies ++ [trunk cargo-leptos binaryen just];
           env = {
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
           };

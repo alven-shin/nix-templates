@@ -19,3 +19,7 @@ build-debug:
 # spawn live-server and open browser
 serve:
 	trunk serve --open
+
+init:
+	cargo init
+	cargo add leptos --features csr,nightly
