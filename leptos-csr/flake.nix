@@ -4,6 +4,7 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     naersk.url = "github:nix-community/naersk";
     flake-utils.url = "github:numtide/flake-utils";
+    rustyaura.url = "github:OwOSwordsman/rustyaura.nix";
   };
 
   outputs = {
@@ -12,6 +13,7 @@
     rust-overlay,
     naersk,
     flake-utils,
+    rustyaura,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -54,7 +56,16 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; dependencies ++ [trunk cargo-leptos binaryen just];
+          packages = with pkgs;
+            dependencies
+            ++ [
+              trunk
+              cargo-leptos
+              binaryen
+              just
+              tailwindcss
+              rustyaura.packages.${system}.rustyaura
+            ];
           env = {
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
           };

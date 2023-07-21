@@ -4,7 +4,8 @@ default:
 
 # build app, optimized for size
 build:
-	trunk build --release
+	tailwindcss -i input.css -o style/output.css --minify
+	trunk --config " " build --release
 	@# optimized with wasm-opt
 	find dist/ -name "*.wasm" -exec wasm-opt {} -Oz -o {}.opt \;
 	@# remove unoptimized files

@@ -7,6 +7,10 @@
     "rust": "html",
     "*.rs": "html"
   },
+  "tailwindCSS.experimental.classRegex": [
+    "\\.classes\\(\"([^\"]*)\"\\)",
+    "\\.class\\(\"([^\"]*)\","
+  ],
   "files.associations": {
     "*.rs": "rust"
   },
@@ -15,5 +19,6 @@
     "comments": "on",
     "strings": true
   },
-  "css.validate": false
+  "css.validate": false,
+  "rust-analyzer.rustfmt.overrideCommand": ["rustyaura"]
 }
