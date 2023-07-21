@@ -7,7 +7,7 @@
         path = ./rust;
         description = "Modified Rust template with custom Cargo configs.";
       };
-      leptos-csr = {
+      leptos = {
         path = ./leptos;
         description = "Rust template for Leptos (CSR) + Tailwind";
       };
