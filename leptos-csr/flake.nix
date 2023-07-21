@@ -22,10 +22,13 @@
         };
 
         # https://github.com/oxalica/rust-overlay#cheat-sheet-common-usage-of-rust-bin
-        toolchain = pkgs.rust-bin.nightly.latest.default.override {
-          targets = ["wasm32-unknown-unknown"];
-          extensions = ["rust-src"];
-        };
+        toolchain = pkgs.rust-bin.selectLatestNightlyWith (
+          toolchain:
+            toolchain.default.override {
+              targets = ["wasm32-unknown-unknown"];
+              extensions = ["rust-src"];
+            }
+        );
         # NOTE: use this instead if using rust-toolchain file
         # toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
