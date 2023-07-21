@@ -1,5 +1,3 @@
-use leptos::*;
-
 fn main() {
-    mount_to_body(|cx| view! { cx,  <p>"Hello, world!"</p> })
+    leptos::mount_to_body(|cx| leptos::html::p(cx).child("Hello, world!"));
 }
