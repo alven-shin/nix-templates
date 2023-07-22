@@ -60,8 +60,6 @@
             dependencies
             ++ [
               trunk
-              cargo-leptos
-              binaryen
               just
               tailwindcss
               rustyaura.packages.${system}.rustyaura

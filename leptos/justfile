@@ -7,12 +7,6 @@ default:
 build: create_ignored_dirs
 	tailwindcss -i input.css -o style/output.css --minify
 	trunk --config " " build --release
-	@# optimized with wasm-opt
-	find dist/ -name "*.wasm" -exec wasm-opt {} -Oz -o {}.opt \;
-	@# remove unoptimized files
-	find dist/ -name "*.wasm" -exec rm {} \;
-	@# rename optimized files to correct file extension
-	find dist/ -name "*.wasm.opt" -exec sh -c 'mv "$1" "${1%.wasm.opt}.wasm"' _ {} \;
 
 # build app for debugging
 build-debug: create_ignored_dirs
