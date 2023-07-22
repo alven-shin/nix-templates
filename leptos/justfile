@@ -1,9 +1,10 @@
 # list available recipes
+[private]
 default:
 	@just --list
 
 # build app, optimized for size
-build:
+build: create_ignored_dirs
 	tailwindcss -i input.css -o style/output.css --minify
 	trunk --config " " build --release
 	@# optimized with wasm-opt
@@ -14,13 +15,18 @@ build:
 	find dist/ -name "*.wasm.opt" -exec sh -c 'mv "$1" "${1%.wasm.opt}.wasm"' _ {} \;
 
 # build app for debugging
-build-debug:
+build-debug: create_ignored_dirs
 	trunk build
 
 # spawn live-server and open browser
-serve:
+serve: create_ignored_dirs
 	trunk serve --open
 
+[private]
+create_ignored_dirs:
+	mkdir -p target style dist
+
+# initialize cargo project with leptos
 init:
 	cargo init
 	cargo add leptos --features csr,nightly
