@@ -20,5 +20,6 @@
     "strings": true
   },
   "css.validate": false,
-  "rust-analyzer.rustfmt.overrideCommand": ["rustyaura"]
+  "rust-analyzer.rustfmt.overrideCommand": ["rustyaura"],
+  "rust-analyzer.cargo.extraArgs": ["--profile", "rust-analyzer"]
 }

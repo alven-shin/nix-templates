@@ -40,8 +40,8 @@
         };
 
         sharedDependencies = with pkgs; [toolchain sccache];
-        linuxDependencies = with pkgs; [];
-        macosDependencies = with pkgs; [];
+        linuxDependencies = with pkgs; [clang mold];
+        macosDependencies = with pkgs; [lld_16];
         macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
 
         dependencies =
