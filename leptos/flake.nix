@@ -53,6 +53,7 @@
         packages.default = naersk'.buildPackage {
           src = ./.;
           buildInputs = dependencies;
+          RUSTC_WRAPPER = "";
         };
 
         devShells.default = pkgs.mkShell {
