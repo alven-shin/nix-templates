@@ -63,10 +63,8 @@
           crate = crate-dev;
         };
 
-        devShells.default = craneLib.devShell {
-          checks = self.checks.${system};
-          inputsFrom = [crate-release];
-          packages = with pkgs; [];
+        devShells.default = pkgs.mkShell {
+          packages = with pkgs; [] ++ dependencies;
           env = {
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
           };
