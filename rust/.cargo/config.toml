@@ -7,7 +7,7 @@ protocol = "sparse"
 
 [target.x86_64-unknown-linux-gnu]
 linker = "clang"
-rustflags = ["-Clink-arg=-fuse-ld=mold", "-Csplit-debuginfo=unpacked"]
+rustflags = ["-Clink-arg=-fuse-ld=ld.mold", "-Csplit-debuginfo=unpacked"]
 
 [target.aarch64-apple-darwin]
 rustflags = ["-Csplit-debuginfo=unpacked"]
@@ -19,5 +19,5 @@ opt-level = 1
 opt-level = 1
 
 [profile.release]
-lto = true
+lto = "thin"
 strip = true
