@@ -2,16 +2,20 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
-    naersk.url = "github:nix-community/naersk";
     flake-utils.url = "github:numtide/flake-utils";
+
+    crane = {
+      url = "github:ipetkov/crane";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     rust-overlay,
-    naersk,
     flake-utils,
+    crane,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -28,11 +32,6 @@
         # NOTE: use this instead if using rust-toolchain file
         # toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
-        naersk' = pkgs.callPackage naersk {
-          cargo = toolchain;
-          rustc = toolchain;
-        };
-
         sharedDependencies = with pkgs; [toolchain sccache];
         linuxDependencies = with pkgs; [mold clang];
         macosDependencies = with pkgs; [];
@@ -43,15 +42,31 @@
           ++ pkgs.lib.optionals pkgs.stdenv.isLinux linuxDependencies
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosDependencies
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosFrameworks;
-      in {
-        packages.default = naersk'.buildPackage {
-          src = ./.;
+
+        craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+        sharedCrateArgs = {
+          src = craneLib.cleanCargoSource (craneLib.path ./.);
+          strictDeps = true;
           buildInputs = dependencies;
           RUSTC_WRAPPER = "";
         };
+        crate-release = craneLib.buildPackage sharedCrateArgs;
+        crate-dev = craneLib.buildPackage (sharedCrateArgs
+          // {
+            CARGO_PROFILE = "dev";
+          });
+      in {
+        packages.default = crate-release;
+        packages.dev = crate-dev;
 
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; dependencies ++ [];
+        checks = {
+          crate = crate-dev;
+        };
+
+        devShells.default = craneLib.devShell {
+          checks = self.checks.${system};
+          inputsFrom = [crate-release];
+          packages = with pkgs; [];
           env = {
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
           };
