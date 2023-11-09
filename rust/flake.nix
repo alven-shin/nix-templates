@@ -32,7 +32,7 @@
         # NOTE: use this instead if using rust-toolchain file
         # toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
-        sharedDependencies = with pkgs; [toolchain sccache];
+        sharedDependencies = with pkgs; [sccache];
         linuxDependencies = with pkgs; [mold clang];
         macosDependencies = with pkgs; [];
         macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
@@ -64,7 +64,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [] ++ dependencies;
+          packages = with pkgs; [toolchain] ++ dependencies;
           env = {
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
           };
