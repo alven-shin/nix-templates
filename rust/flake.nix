@@ -2,7 +2,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
-    flake-utils.url = "github:numtide/flake-utils";
 
     crane = {
       url = "github:ipetkov/crane";
@@ -10,65 +9,41 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    rust-overlay,
-    flake-utils,
-    crane,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        overlays = [(import rust-overlay)];
-        pkgs = import nixpkgs {
-          inherit system overlays;
+  outputs = inputs @ {flake-parts, ...}:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      # debug = true;
+
+      imports = [
+        # To import a flake module
+        # 1. Add foo to inputs
+        # 2. Add foo as a parameter to the outputs function
+        # 3. Add here: foo.flakeModule
+        ./nix/shell.nix
+        ./nix/crane.nix
+      ];
+      systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
+      perSystem = {
+        config,
+        self',
+        inputs',
+        pkgs,
+        system,
+        ...
+      }: {
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [
+            (import inputs.rust-overlay)
+          ];
         };
-
-        # https://github.com/oxalica/rust-overlay#cheat-sheet-common-usage-of-rust-bin
-        toolchain = pkgs.rust-bin.stable.latest.default.override {
-          extensions = ["rust-src"];
-        };
-        # NOTE: use this instead if using rust-toolchain file
-        # toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
-
-        sharedDependencies = with pkgs; [sccache];
-        linuxDependencies = with pkgs; [mold clang];
-        macosDependencies = with pkgs; [];
-        macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
-
-        dependencies =
-          sharedDependencies
-          ++ pkgs.lib.optionals pkgs.stdenv.isLinux linuxDependencies
-          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosDependencies
-          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosFrameworks;
-
-        craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
-        sharedCrateArgs = {
-          src = craneLib.cleanCargoSource (craneLib.path ./.);
-          strictDeps = true;
-          buildInputs = dependencies;
-          RUSTC_WRAPPER = "";
-        };
-        crate-release = craneLib.buildPackage sharedCrateArgs;
-        crate-dev = craneLib.buildPackage (sharedCrateArgs
-          // {
-            CARGO_PROFILE = "dev";
-          });
-      in {
-        packages.default = crate-release;
-        packages.dev = crate-dev;
-
-        checks = {
-          crate = crate-dev;
-        };
-
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [toolchain] ++ dependencies;
-          env = {
-            LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
-          };
-        };
-      }
-    );
+        # Per-system attributes can be defined here. The self' and inputs'
+        # module parameters provide easy access to attributes of the same
+        # system.
+      };
+      flake = {
+        # The usual flake attributes can be defined here, including system-
+        # agnostic ones like nixosModule and system-enumerating ones, although
+        # those are more easily expressed in perSystem.
+      };
+    };
 }

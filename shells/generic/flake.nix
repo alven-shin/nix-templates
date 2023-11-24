@@ -1,39 +1,41 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+
+    crane = {
+      url = "github:ipetkov/crane";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = import nixpkgs {
-          inherit system;
-        };
+  outputs = inputs @ {flake-parts, ...}:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      # debug = true;
 
-        sharedDependencies = with pkgs; [];
-        linuxDependencies = with pkgs; [];
-        macosDependencies = with pkgs; [];
-        macosFrameworks = with pkgs.darwin.apple_sdk.frameworks; [];
-
-        dependencies =
-          sharedDependencies
-          ++ pkgs.lib.optionals pkgs.stdenv.isLinux linuxDependencies
-          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosDependencies
-          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin macosFrameworks;
-      in {
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs;
-            dependencies ++ [];
-          env = {
-            LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dependencies;
-          };
-        };
-      }
-    );
+      imports = [
+        # To import a flake module
+        # 1. Add foo to inputs
+        # 2. Add foo as a parameter to the outputs function
+        # 3. Add here: foo.flakeModule
+        ./nix/shell.nix
+      ];
+      systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
+      perSystem = {
+        config,
+        self',
+        inputs',
+        pkgs,
+        system,
+        ...
+      }: {
+        # Per-system attributes can be defined here. The self' and inputs'
+        # module parameters provide easy access to attributes of the same
+        # system.
+      };
+      flake = {
+        # The usual flake attributes can be defined here, including system-
+        # agnostic ones like nixosModule and system-enumerating ones, although
+        # those are more easily expressed in perSystem.
+      };
+    };
 }
