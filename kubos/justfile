@@ -1,0 +1,24 @@
+default:
+    @just --list
+
+[no-cd]
+lockfile:
+    cp {{justfile_directory()}}/.kubos/Cargo.lock .
+
+build_image:
+    cd .devcontainer && docker build --tag kubos .
+
+docker:
+    docker run -it --rm -v .:/workspace \
+        --workdir /workspace{{trim_start_match(invocation_directory(), justfile_directory())}} \
+        kubos
+
+bacon:
+    docker run -it --rm -v .:/workspace \
+        --workdir /workspace{{trim_start_match(invocation_directory(), justfile_directory())}} \
+        --env "PATH=/home/vagrant/.cargo/bin/" \
+        kubos bacon
+
+submodule:
+    git submodule add https://github.com/kubos/kubos.git .kubos
+    cd .kubos && git checkout 1.20.0
