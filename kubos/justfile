@@ -19,6 +19,9 @@ bacon:
         --env "PATH=/home/vagrant/.cargo/bin/" \
         kubos bacon
 
-submodule:
+init:
+    git init
     git submodule add https://github.com/kubos/kubos.git .kubos
     cd .kubos && git checkout 1.20.0
+    git add .
+    git commit -m "Initial commit"
