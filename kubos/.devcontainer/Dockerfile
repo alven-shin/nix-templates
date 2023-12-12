@@ -13,28 +13,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /tmp
 
-# iOBC Toolchain
-# RUN wget https://s3.amazonaws.com/kubos-world-readable-assets/iobc_toolchain.tar.gz \
-#     && tar -xf iobc_toolchain.tar.gz -C /usr/bin \
-#     && rm iobc_toolchain.tar.gz \
-#     && echo "export PATH=$PATH:/usr/bin/iobc_toolchain/usr/bin" >> /etc/profile
-
-# Beaglebone Black/Pumpkin MBM2 toolchain
-# RUN wget https://s3.amazonaws.com/kubos-world-readable-assets/bbb_toolchain.tar.gz \
-#     && tar -xf bbb_toolchain.tar.gz -C /usr/bin \
-#     && rm bbb_toolchain.tar.gz
-
 # copy config files
 RUN git clone --depth 1 --single-branch --branch 1.20.0 https://github.com/kubos/kubos-vagrant \
     && mkdir -p /etc/minicom \
     && mkdir -p /etc/udev/rules.d \
     && mv kubos-vagrant/kubos-dev/bin/minirc.kubos /etc/minicom/minirc.kubos \
-    && mv kubos-vagrant/kubos-dev/bin/kubos-usb.rules /etc/udev/rules.d/kubos-usb.rules
+    && mv kubos-vagrant/kubos-dev/bin/kubos-usb.rules /etc/udev/rules.d/kubos-usb.rules \
+    && rm -rf /tmp/kubos-vagrant
 
 # create non-root user
 RUN useradd --no-log-init --user-group --create-home --shell /bin/bash vagrant \
-    && echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
-    && chown -R vagrant /tmp/kubos-vagrant
+    && echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER vagrant
 
 # install rust
@@ -48,8 +37,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     --target arm-unknown-linux-gnueabihf \
     --target armv5te-unknown-linux-gnueabi \
     && $HOME/.cargo/bin/rustup default 1.39.0 \
-    && mv /tmp/kubos-vagrant/kubos-dev/bin/cargo_config $HOME/.cargo/config.toml \
-    && rm -rf /tmp/kubos-vagrant
+    && echo '[build]\ntarget-dir = ".cache/cargo-target"' >> $HOME/.cargo/config.toml
 
 # install python dependencies and modules
 RUN python3.7 -m pip install --user --upgrade pip wheel setuptools \
