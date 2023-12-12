@@ -1,0 +1,8 @@
+[build]
+incremental = false
+
+[profile.release]
+opt-level = "z"
+lto = "thin"
+codegen-units = 1
+panic = "abort"
