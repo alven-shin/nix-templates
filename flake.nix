@@ -7,14 +7,6 @@
         path = ./rust;
         description = "Modified Rust template with custom Cargo configs.";
       };
-      kubos = {
-        path = ./kubos;
-        description = "Template for KubOS platform";
-      };
-      leptos = {
-        path = ./leptos;
-        description = "Rust template for Leptos (CSR) + Tailwind";
-      };
 
       shells = {
         python = {
