@@ -25,15 +25,15 @@
         system,
         ...
       }: {
+        # Per-system attributes can be defined here. The self' and inputs'
+        # module parameters provide easy access to attributes of the same
+        # system.
         _module.args.pkgs = import inputs.nixpkgs {
           inherit system;
           overlays = [
             (import inputs.rust-overlay)
           ];
         };
-        # Per-system attributes can be defined here. The self' and inputs'
-        # module parameters provide easy access to attributes of the same
-        # system.
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
