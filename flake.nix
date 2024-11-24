@@ -7,6 +7,10 @@
         path = ./rust;
         description = "Modified Rust template with custom Cargo configs.";
       };
+      cpp = {
+        path = ./cpp;
+        description = "C++ template with CMake, adapted from https://gitlab.com/CLIUtils/modern-cmake/.";
+      };
 
       shells = {
         python = {

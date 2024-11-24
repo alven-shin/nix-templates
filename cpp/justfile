@@ -1,0 +1,22 @@
+default:
+    @just --list
+
+# set up the build directory
+configure:
+    cmake -B build -S . -G Ninja
+
+# build a target, defaults to listing targets
+build target="help": configure
+    cmake --build build --target {{target}}
+
+# set up the release build directory
+configure-release:
+    cmake -B build-release -S . -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+# release build a target, defaults to listing targets
+build-release target="help": configure-release
+    cmake --build build-release --target {{target}}
+
+# remove build directories
+clean:
+    rm -rf build build-release
