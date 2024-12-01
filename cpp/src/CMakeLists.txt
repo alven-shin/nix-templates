@@ -10,7 +10,7 @@ add_library(my_library
     ${HEADER_LIST}
 )
 
-# All users of this library will need at least C++11
+# All users of this library will need at least C++17
 target_compile_features(my_library PUBLIC cxx_std_17)
 
 # We need this directory, and users of our library will need it too
